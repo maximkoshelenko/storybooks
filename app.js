@@ -13,7 +13,7 @@ require('./config/passport')(passport);
 
 // Load Routes
 const auth = require('./routes/auth');
-const index = require('./routes/indexTwo');
+const index = require('./routes/index');
 const stories = require('./routes/stories');
 
 // Load keys
