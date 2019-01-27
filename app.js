@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -17,7 +18,6 @@ const index = require('./routes/index');
 const stories = require('./routes/stories');
 
 // Load keys
-
 const keys = require('./config/keys');
 
 // // Map global promise - get rid of warning
@@ -56,7 +56,10 @@ app.use((req, res, next) => {
     next();
 });
 
-//Use Routes
+// Set Static Folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Use Routes
 app.use('/stories', stories);
 app.use('/auth', auth);
 app.use('/', index);
