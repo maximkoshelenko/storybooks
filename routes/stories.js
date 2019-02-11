@@ -10,6 +10,7 @@ const User = mongoose.model('users');
 router.get('/', (req, res) => {
     Story.find({ status: 'public' })
         .populate('user')
+        .sort({ date: 'desc' })
         .then(stories => {
             res.render('stories/index', {
                 stories: stories
@@ -23,6 +24,7 @@ router.get('/show/:id', (req, res) => {
         _id: req.params.id
     })
         .populate('user')
+        .populate('comments.commentUser')
         .then(story => {
             res.render('stories/show', {
                 story: story
@@ -41,9 +43,13 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
         _id: req.params.id
     })
         .then(story => {
-            res.render('stories/edit', {
-                story: story
-            });
+            if (story.user != req.user.id) {
+                res.redirect('/stories');
+            } else {
+                res.render('stories/edit', {
+                    story: story
+                });
+            };
         });
 });
 
@@ -104,6 +110,27 @@ router.delete('/:id', (req, res) => {
     })
         .then(() => {
             res.redirect('/dashboard');
+        });
+});
+
+// Add Comment
+router.post('/comment/:id', (req, res) => {
+    Story.findOne({
+        _id: req.params.id
+    })
+        .then(story => {
+            const newComment = {
+                commentBody: req.body.commentBody,
+                commentUser: req.user.id
+            }
+
+            // Add to comments array
+            story.comments.unshift(newComment);
+
+            story.save()
+                .then(story => {
+                    res.redirect(`/stories/show/${story.id}`)
+                });
         });
 });
 
